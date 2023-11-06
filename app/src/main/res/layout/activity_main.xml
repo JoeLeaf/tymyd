@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f783ac"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+    <com.hygzs.tymyd.customView.PathAnimTextView
+        android:id="@+id/patv2"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:layout_centerInParent="true"
+        app:animSpeed="fast"
+        app:animText="天涯BUG刀"
+        app:animTextColor="@color/white"
+        app:animTextLineMargen="0"
+        app:animTextSize="200"
+        app:animTextStrokWidth="1"
+        app:animTextTypeFace="fonts/HongLeiXingShuJianTi-2.otf" />
+
+
+    <!--    <TextView-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:id="@+id/textView"-->
+    <!--        android:text="一二三四五"-->
+    <!--        android:textColor="@color/white"-->
+    <!--        android:textSize="50sp" />-->
+
+</RelativeLayout>

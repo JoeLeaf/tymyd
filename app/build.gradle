@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.hygzs.tymyd'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.hygzs.tymyd"
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.github.hss01248:DialogUtil:3.0.3'
+    //iOS弹窗 https://github.com/hss01248/DialogUtil
+    implementation 'com.blankj:utilcodex:1.31.1'
+    //https://github.com/Blankj/AndroidUtilCode 工具类
+    implementation 'androidx.documentfile:documentfile:1.1.0-alpha01'
+    implementation files('libs\\switcher-1.1.1.jar')
+    //此处依赖非常重要可以直接复制到你的工程,用于解决部分手机删除文件失败,和文件操作性能低问题
+    implementation 'com.github.liangjingkanji:BRV:1.5.5'
+    //RecyclerView框架 https://github.com/liangjingkanji/BRV
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
