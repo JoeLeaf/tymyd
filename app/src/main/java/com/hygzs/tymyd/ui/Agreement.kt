@@ -49,8 +49,6 @@ class Agreement : BaseActivity() {
                     readWriteData.requestPermission()
                 }
             }
-
-
         }
         //判断是否拥有储存权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) { //请求权限
@@ -84,7 +82,6 @@ class Agreement : BaseActivity() {
                             readWriteData.requestPermission()
                         }
                     }
-
                     override fun onSecond() {
                         finish()
                     }
@@ -108,6 +105,7 @@ class Agreement : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        Log.e("小叶子 : ", "onActivityResult: $requestCode")
         readWriteData.savePermissions(requestCode, resultCode, data) //保存权限
         if (requestCode == 65) {
             if (readWriteData.isAllFilePermission) {

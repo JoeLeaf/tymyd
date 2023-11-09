@@ -24,6 +24,7 @@ class ChatRecords : BaseActivity() {
         readWriteData = ReadWriteData(this, 11, Data.app)
         initView()
     }
+
     private fun initView() {
         findViewById<TextView>(R.id.more).setOnClickListener {
             ToastUtils.showLong("更多！多不了一点！")
@@ -42,15 +43,20 @@ class ChatRecords : BaseActivity() {
                 //截取字符串
                 val account = file.substring(1, file.length - 4)
                 accountList.add(account)
+                Log.e("小叶子 : ", account)
             }
+        }
+        chatRecords.linear().setup {
+            addType<String>(R.layout.role_list)
+            onBind {
+                val roleId = findView<TextView>(R.id.roleId)
+                val notes = findView<TextView>(R.id.notes)
+                roleId.text = (models?.get(position) ?: "").toString()
+            }
+            models = accountList
         }
 //        chatRecords.layoutManager = LinearLayoutManager(this)
 //        chatRecords.adapter = CRAdapter(accountList)
-        chatRecords.linear().setup {
-            addType<CRAdapter> { R.layout.role_list }
-            onCreate {
 
-            }
-        }.models = accountList
     }
 }

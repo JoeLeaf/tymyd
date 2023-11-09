@@ -32,7 +32,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class ReadWriteData {
+
     private static String packageName_xyz = "";
     Activity context;//内部操作Activity对象
     int requestCode = 11;//请求标识
@@ -80,9 +82,7 @@ public class ReadWriteData {
         if (packageName_xyz.equals("")) {
             uri1 = DocumentFile.fromTreeUri(this.context, uri1).getUri();
         } else {
-            uri1 = Uri.parse(path + "%2F" + packageName_xyz);
-            uri1 = Uri.parse(DocumentFile.fromTreeUri(this.context, uri1).getUri() + "%2F" + packageName_xyz);
-
+            uri1 = DocumentFile.fromTreeUri(context, Uri.parse(path + "%2F" + packageName_xyz)).getUri();
         }
         Log.e("小叶子 requestPermission: ", uri1.toString());
         Intent intent1 = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -504,7 +504,9 @@ public class ReadWriteData {
     public String[] getList(String dir) {
         try {
             String s = getPathUri2(dir.replaceAll("/", "%2F"), context);
+            Log.e("小叶子 getList: ", s);
             DocumentFile documentFile = DocumentFile.fromTreeUri(context, Uri.parse(s));
+            Log.e("小叶子 getList: ",documentFile.getUri().toString());
             if (documentFile == null || !documentFile.exists()) {
                 return new String[0];
             }
