@@ -1,18 +1,29 @@
 package com.hygzs.tymyd.ui
 
-import androidx.appcompat.app.AppCompatActivity
+
+import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.blankj.utilcode.util.ClipboardUtils
+import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.ToastUtils
+import com.drake.brv.annotaion.ItemOrientation
+import com.drake.brv.item.ItemSwipe
 import com.drake.brv.utils.linear
 import com.drake.brv.utils.setup
+import com.hss01248.dialog.StyledDialog
+import com.hss01248.dialog.adapter.SuperLvHolder
+import com.hss01248.dialog.interfaces.MyDialogListener
 import com.hygzs.tymyd.BaseActivity
 import com.hygzs.tymyd.Data
 import com.hygzs.tymyd.R
-import com.hygzs.tymyd.adapter.CRAdapter
 import com.hygzs.tymyd.util.ReadWriteData
 
 class ChatRecords : BaseActivity() {
@@ -43,7 +54,6 @@ class ChatRecords : BaseActivity() {
                 //截取字符串
                 val account = file.substring(1, file.length - 4)
                 accountList.add(account)
-                Log.e("小叶子 : ", account)
             }
         }
         chatRecords.linear().setup {
@@ -51,12 +61,83 @@ class ChatRecords : BaseActivity() {
             onBind {
                 val roleId = findView<TextView>(R.id.roleId)
                 val notes = findView<TextView>(R.id.notes)
+                val roleListItem = findView<RelativeLayout>(R.id.role_list_item)
                 roleId.text = (models?.get(position) ?: "").toString()
-            }
-            models = accountList
-        }
-//        chatRecords.layoutManager = LinearLayoutManager(this)
-//        chatRecords.adapter = CRAdapter(accountList)
+                if (!SPUtils.getInstance("notes").getString("${models?.get(position)}").isEmpty()) {
+                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(position)}")
+                }
+                //长按复制内容
+                roleListItem.setOnLongClickListener {
+                    StyledDialog.buildIosAlert(
+                        "小叶子的提示",
+                        "是否复制这个账号？",
+                        object : MyDialogListener() {
+                            override fun onFirst() {
+                                ClipboardUtils.copyText("${models?.get(position)}")
+                                ToastUtils.showLong("复制成功")
+                            }
 
+                            override fun onSecond() {
+                            }
+                        }).setBtnText("确定", "取消").show()
+                    true
+                }
+            }
+            val itemTouchHelperCallback = object :
+                ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    if (direction == ItemTouchHelper.LEFT) {
+                        StyledDialog.buildIosAlert("小叶子的提示",
+                            "是否确定要删除这个账号的所有聊天记录？",
+                            object : MyDialogListener() {
+                                override fun onFirst() {
+                                    readWriteData.delete(
+                                        Data.PathName, "C${accountList[position]}.txt"
+                                    )
+                                    accountList.removeAt(position)
+                                    notifyItemRemoved(position)
+                                }
+
+                                override fun onSecond() {
+                                    notifyItemChanged(position)
+                                }
+                            }).setBtnText("确定", "取消").show()
+                    } else if (direction == ItemTouchHelper.RIGHT) {
+                        notifyItemChanged(position)
+                        //不引用layout文件，直接在代码中写
+                        val editText = EditText(this@ChatRecords)
+                        AlertDialog.Builder(this@ChatRecords).setTitle("给爷输入备注")
+                            .setView(editText).setPositiveButton("确定") { _, _ ->
+                                val notes = editText.text.toString()
+                                if (notes.isNotEmpty()) {
+                                    SPUtils.getInstance("notes")
+                                        .put("${accountList[position]}", notes)
+                                    //刷新界面
+                                    notifyItemChanged(position)
+                                } else {
+                                    SPUtils.getInstance("notes").put(
+                                            "${accountList[position]}",
+                                            "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
+                                        )
+                                    //刷新界面
+                                    notifyItemChanged(position)
+                                }
+                            }.setNegativeButton("取消") { _, _ ->
+                            }.create().show()
+                    }
+                }
+            }
+            val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+            itemTouchHelper.attachToRecyclerView(chatRecords)
+        }.models = accountList
     }
 }
