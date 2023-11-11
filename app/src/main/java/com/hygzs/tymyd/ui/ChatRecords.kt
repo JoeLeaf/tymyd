@@ -71,10 +71,9 @@ class ChatRecords : BaseActivity() {
                 val cronyId = findView<TextView>(R.id.cronyId)
                 val textView = findView<TextView>(R.id.textView)
                 val notes = findView<TextView>(R.id.notes)
-                val cronyListItem = findView<RelativeLayout>(R.id.crony_list_item)
-                cronyId.text = (models?.get(position) ?: "").toString()
-                if (!SPUtils.getInstance("notes").getString("${models?.get(position)}").isEmpty()) {
-                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(position)}")
+                cronyId.text = (models?.get(modelPosition) ?: "").toString()
+                if (SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}").isNotEmpty()) {
+                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}")
                 }
                 when (cronyId.text.substring(0, 1)) {
                     "F" -> {
@@ -119,14 +118,14 @@ class ChatRecords : BaseActivity() {
             onBind {
                 val roleId = findView<TextView>(R.id.roleId)
                 val notes = findView<TextView>(R.id.notes)
-                roleId.text = (models?.get(position) ?: "").toString()
-                if (!SPUtils.getInstance("notes").getString("${models?.get(position)}").isEmpty()) {
-                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(position)}")
+                roleId.text = (models?.get(modelPosition) ?: "").toString()
+                if (SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}").isNotEmpty()) {
+                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}")
                 }
             }
             //点击进入聊天记录
             R.id.role_list_item.onClick {
-                getFriends("C${models?.get(position)}.txt")
+                getFriends("C${models?.get(modelPosition)}.txt")
             }
             //长按复制
             R.id.role_list_item.onLongClick {
@@ -135,7 +134,7 @@ class ChatRecords : BaseActivity() {
                     "是否复制这个账号？",
                     object : MyDialogListener() {
                         override fun onFirst() {
-                            ClipboardUtils.copyText("${models?.get(position)}")
+                            ClipboardUtils.copyText("${models?.get(modelPosition)}")
                             ToastUtils.showLong("复制成功")
                         }
 
@@ -154,7 +153,8 @@ class ChatRecords : BaseActivity() {
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    val position = viewHolder.position
+                    val position = viewHolder.layoutPosition
+                    ToastUtils.showLong("删除了${viewHolder.layoutPosition}")
                     if (direction == ItemTouchHelper.LEFT) {
                         StyledDialog.buildIosAlert("小叶子的提示",
                             "是否确定要删除这个账号的所有聊天记录？",
@@ -201,6 +201,7 @@ class ChatRecords : BaseActivity() {
     }
     //双击退出软件
     private var exitTime: Long = 0
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         //如果在好友列表界面则返回账号列表界面，否则双击退出软件
         if (chatRecords.adapter?.getItemViewType(0) == R.layout.crony_list) {
