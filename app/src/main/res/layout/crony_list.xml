@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_marginBottom="20dp"
+    android:background="@drawable/linearlayout_solid"
+    android:id="@+id/crony_list_item"
+    android:layout_height="100dp">
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
+        android:padding="5dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#F332111B"
+        android:background="@drawable/circle_background"
+        android:text="NPC" />
+
+    <TextView
+        android:id="@+id/cronyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_toRightOf="@+id/textView"
+        android:text="S2306125583702922682" />
+
+    <TextView
+        android:id="@+id/notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cronyId"
+        android:layout_alignLeft="@+id/cronyId"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:textColor="@color/white"
+        android:text="向右滑动修改备注，向左滑动删除，长按复制或者其他功能" />
+</RelativeLayout>
