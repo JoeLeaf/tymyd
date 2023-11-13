@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f783ac"
+    android:background="@drawable/a"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -20,7 +20,7 @@
         app:animTextColor="@color/white"
         app:animTextLineMargen="0"
         app:animTextSize="200"
-        app:animTextStrokWidth="1"
+        app:animTextStrokWidth="5"
         app:animTextTypeFace="fonts/HongLeiXingShuJianTi-2.otf" />
 
 

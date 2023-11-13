@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <!--背景颜色-->
-    <solid android:color="#B7DE92B6" />
-<!--    <solid android:color="#f76a9c" />-->
+    <solid android:color="#DCFFFFFF" />
     <!--分别设置左上，右上，左下，右下-->
     <corners
         android:bottomLeftRadius="10dp"

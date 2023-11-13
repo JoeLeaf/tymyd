@@ -13,10 +13,12 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.FileIOUtils
+import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.PathUtils
 import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.drake.brv.BindingAdapter
+import com.drake.brv.annotaion.AnimationType
 import com.drake.brv.annotaion.ItemOrientation
 import com.drake.brv.item.ItemSwipe
 import com.drake.brv.listener.DefaultItemTouchCallback
@@ -36,18 +38,20 @@ class ChatRecords : BaseActivity() {
     private lateinit var chatRecords: RecyclerView
     private lateinit var readWriteData: ReadWriteData
     private var itemTouchHelper1: ItemTouchHelper? = null
+    private lateinit var notesMap: Map<String, *>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_records)
         readWriteData = ReadWriteData(this, 11, Data.app)
+        notesMap = getSPList("notes")
         initView()
     }
 
     private fun initView() {
-        findViewById<TextView>(R.id.more).setOnClickListener {
-            ToastUtils.showLong("更多！多不了一点！")
-        }
         chatRecords = findViewById(R.id.chat_records)
+        findViewById<TextView>(R.id.textView5).setOnClickListener {
+            ToastUtils.showLong("你点啥！有这个打算！但是还没写！")
+        }
         getAccountList()
     }
 
@@ -59,12 +63,19 @@ class ChatRecords : BaseActivity() {
         )
         val dbPath = PathUtils.getInternalAppFilesPath() + "/${name.replace("txt", "db")}"
         val db = SQLite3Helper(this, dbPath)
-        val friendsList = db.getAllTableNames()
+        var friendsList = db.getAllTableNames()
+        //转为 mutableListOf<String>()
+        friendsList = GsonUtils.fromJson<List<String>>(
+            friendsList.toString(),
+            List::class.java
+        ) as MutableList<String>
+
         //清理chatRecords数据和事件
         itemTouchHelper1?.attachToRecyclerView(null)
 
-        chatRecords.linear().setup {
+        val adapter = chatRecords.linear().setup {
             addType<String>(R.layout.crony_list)
+            setAnimation(AnimationType.SCALE)
             onCreate {
             }
             onBind {
@@ -72,8 +83,12 @@ class ChatRecords : BaseActivity() {
                 val textView = findView<TextView>(R.id.textView)
                 val notes = findView<TextView>(R.id.notes)
                 cronyId.text = (models?.get(modelPosition) ?: "").toString()
-                if (SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}").isNotEmpty()) {
-                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}")
+                if (notesMap["${models?.get(modelPosition)}"].toString().isNotEmpty()
+                    && notesMap["${models?.get(modelPosition)}"].toString() != "null"
+                ) {
+                    notes.text = notesMap["${models?.get(modelPosition)}"].toString()
+                } else {
+                    notes.text = "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
                 }
                 when (cronyId.text.substring(0, 1)) {
                     "F" -> {
@@ -85,7 +100,7 @@ class ChatRecords : BaseActivity() {
                     }
 
                     "S" -> {
-                        textView.text = "陌生人"
+                        textView.text = "路人"
                     }
 
                     "Z" -> {
@@ -93,7 +108,89 @@ class ChatRecords : BaseActivity() {
                     }
                 }
             }
-        }.models = friendsList
+            //点击打开界面
+            R.id.crony_list_item.onClick {
+                ToastUtils.showLong("点击了${models?.get(modelPosition)}")
+            }
+            //长按复制
+            R.id.crony_list_item.onLongClick {
+                StyledDialog.buildIosAlert(
+                    "小叶子的提示",
+                    "是否复制对方ID？",
+                    object : MyDialogListener() {
+                        override fun onFirst() {
+                            //删除第一位然后复制
+                            ClipboardUtils.copyText("${models?.get(modelPosition)}".substring(1))
+                            ToastUtils.showLong("复制成功")
+                        }
+
+                        override fun onSecond() {
+                        }
+                    }).setBtnText("确定", "取消").show()
+            }
+            //拖动事件
+            val itemTouchHelperCallback = object :
+                ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    //不需要拖动
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.layoutPosition
+                    if (direction == ItemTouchHelper.LEFT) {
+                        notifyItemChanged(position)
+                        StyledDialog.buildIosAlert("小叶子的提示",
+                            "是否确定要删除这个好友的所有聊天记录？",
+                            object : MyDialogListener() {
+                                override fun onFirst() {
+                                    db.dropTable("${models?.get(position)}")
+                                    updateDbFile(dbPath)
+                                    friendsList.removeAt(position)
+                                    ToastUtils.showLong("删除成功~")
+                                    notifyItemRemoved(position)
+                                }
+
+                                override fun onSecond() {
+                                    notifyItemChanged(position)
+                                }
+                            }).setBtnText("确定", "取消").show()
+                    } else if (direction == ItemTouchHelper.RIGHT) {
+                        notifyItemChanged(position)
+                        //不引用layout文件，直接在代码中写
+                        val editText = EditText(this@ChatRecords)
+                        AlertDialog.Builder(this@ChatRecords).setTitle("给爷输入备注")
+                            .setView(editText).setPositiveButton("确定") { _, _ ->
+                                val notes = editText.text.toString()
+                                if (notes.isNotEmpty()) {
+                                    SPUtils.getInstance("notes")
+                                        .put("${models?.get(position)}", notes)
+                                    notesMap = getSPList("notes")
+                                    //刷新界面
+                                    notifyItemChanged(position)
+                                } else {
+                                    SPUtils.getInstance("notes").put(
+                                        "${models?.get(position)}",
+                                        "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
+                                    )
+                                    notesMap = getSPList("notes")
+                                    //刷新界面
+                                    notifyItemChanged(position)
+                                }
+                            }.setNegativeButton("取消") { _, _ ->
+                            }.create().show()
+                    }
+                }
+            }
+            itemTouchHelper1 = ItemTouchHelper(itemTouchHelperCallback)
+            itemTouchHelper1?.attachToRecyclerView(chatRecords)
+        }
+        adapter.models = friendsList
+        adapter.animationRepeat = true
     }
 
     private fun getAccountList() {
@@ -119,8 +216,13 @@ class ChatRecords : BaseActivity() {
                 val roleId = findView<TextView>(R.id.roleId)
                 val notes = findView<TextView>(R.id.notes)
                 roleId.text = (models?.get(modelPosition) ?: "").toString()
-                if (SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}").isNotEmpty()) {
-                    notes.text = SPUtils.getInstance("notes").getString("${models?.get(modelPosition)}")
+                if (notesMap["${models?.get(modelPosition)}"].toString()
+                        .isNotEmpty() && notesMap["${models?.get(modelPosition)}"].toString() != "null"
+                ) {
+                    notes.text =
+                        notesMap["${models?.get(modelPosition)}"].toString()
+                } else {
+                    notes.text = "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
                 }
             }
             //点击进入聊天记录
@@ -156,6 +258,7 @@ class ChatRecords : BaseActivity() {
                     val position = viewHolder.layoutPosition
                     ToastUtils.showLong("删除了${viewHolder.layoutPosition}")
                     if (direction == ItemTouchHelper.LEFT) {
+                        notifyItemChanged(position)
                         StyledDialog.buildIosAlert("小叶子的提示",
                             "是否确定要删除这个账号的所有聊天记录？",
                             object : MyDialogListener() {
@@ -166,6 +269,7 @@ class ChatRecords : BaseActivity() {
                                     accountList.removeAt(position)
                                     notifyItemRemoved(position)
                                 }
+
                                 override fun onSecond() {
                                     notifyItemChanged(position)
                                 }
@@ -180,6 +284,7 @@ class ChatRecords : BaseActivity() {
                                 if (notes.isNotEmpty()) {
                                     SPUtils.getInstance("notes")
                                         .put("${models?.get(position)}", notes)
+                                    notesMap = getSPList("notes")
                                     //刷新界面
                                     notifyItemChanged(position)
                                 } else {
@@ -187,6 +292,7 @@ class ChatRecords : BaseActivity() {
                                         "${models?.get(position)}",
                                         "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
                                     )
+                                    notesMap = getSPList("notes")
                                     //刷新界面
                                     notifyItemChanged(position)
                                 }
@@ -199,14 +305,29 @@ class ChatRecords : BaseActivity() {
             itemTouchHelper1?.attachToRecyclerView(chatRecords)
         }.models = accountList
     }
+
+    //写一个方法用来把修改后的db文件写入到手机内部存储
+
+    private fun updateDbFile(dbPath: String) {
+        val dbBytes = FileIOUtils.readFile2BytesByStream(dbPath)
+        val fileName = dbPath.split("/").last().replace("db", "txt")
+        readWriteData.write(Data.PathName, fileName, null, dbBytes)
+
+    }
+
+    private fun getSPList(string: String): Map<String, *> {
+        return SPUtils.getInstance(string).all
+    }
+
     //双击退出软件
     private var exitTime: Long = 0
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         //如果在好友列表界面则返回账号列表界面，否则双击退出软件
         if (chatRecords.adapter?.getItemViewType(0) == R.layout.crony_list) {
             getAccountList()
-        }else{
+        } else {
             if (System.currentTimeMillis() - exitTime > 2000) {
                 ToastUtils.showLong("再按一次退出程序")
                 exitTime = System.currentTimeMillis()

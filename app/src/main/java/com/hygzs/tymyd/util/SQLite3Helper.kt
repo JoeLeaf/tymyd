@@ -30,17 +30,26 @@ class SQLite3Helper(context: Context, pathName: String) :
         while (cursor.moveToNext()) {
             tableNames.add(cursor.getString(0))
         }
-        //安卓会自动增加android_metadata和sqlite_sequence两个表，所以要去掉
-        cursor = db.rawQuery(
+        dropAndroidMetadata(db)
+        return tableNames
+    }
+    //删除指定表
+    fun dropTable(tableName: String) {
+        val db = writableDatabase
+        db.execSQL("DROP TABLE $tableName")
+        dropAndroidMetadata(db)
+    }
+
+    //删除android_metadata表
+    private fun dropAndroidMetadata(db: SQLiteDatabase) {
+        val cursor = db.rawQuery(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='android_metadata'",
             null
         )
         if (cursor.moveToFirst()) {
-            // 表格存在
             db.execSQL("DROP TABLE android_metadata")
         }
-        cursor.close()
-        return tableNames
+        db.close()
     }
 
 }
