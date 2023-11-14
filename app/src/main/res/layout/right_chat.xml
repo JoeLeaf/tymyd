@@ -24,6 +24,7 @@
         android:textStyle="bold"
         android:textColor="@color/black" />
     <TextView
+        android:transitionName="msg"
         android:id="@+id/msg"
         android:background="@drawable/right_chat_bg"
         android:layout_width="wrap_content"

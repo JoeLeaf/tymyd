@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/a"
+    android:background="@drawable/d"
     android:transitionName="msg2"
     android:id="@+id/relativeLayout"
-    tools:context=".ui.ChatInterface">
+    tools:context=".ui.ChatEditing">
 
     <RelativeLayout
         android:transitionName="msg1"
@@ -27,7 +27,7 @@
             android:clipToPadding="true"
             android:fitsSystemWindows="true"
             android:gravity="center"
-            android:text="初丶秋"
+            android:text="编辑内容"
             android:textColor="#a41c1c"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -37,7 +37,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentRight="true"
-            android:src="@mipmap/meihua2" />
+            android:src="@mipmap/xiangyun" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -47,11 +47,18 @@
             android:src="@mipmap/kongmingdeng2" />
     </RelativeLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:id="@+id/chat_interface"
+    <EditText
+        android:padding="5dp"
+        android:background="@null"
+        android:transitionName="msg"
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/editTextText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar" />
+        android:inputType="textMultiLine"
+        android:gravity="start"
+        android:hint="阿巴阿巴！你删完了是要干啥？快点输入内容！"
+
+        android:text="" />
+
 </RelativeLayout>

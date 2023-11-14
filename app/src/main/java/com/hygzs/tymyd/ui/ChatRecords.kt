@@ -4,12 +4,14 @@ package com.hygzs.tymyd.ui
 import android.app.ActivityOptions
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.GsonUtils
@@ -22,11 +24,15 @@ import com.drake.brv.utils.setup
 import com.hss01248.dialog.StyledDialog
 import com.hss01248.dialog.interfaces.MyDialogListener
 import com.hygzs.tymyd.BaseActivity
-import com.hygzs.tymyd.ChatInterface
 import com.hygzs.tymyd.Data
 import com.hygzs.tymyd.R
 import com.hygzs.tymyd.util.ReadWriteData
 import com.hygzs.tymyd.util.SQLite3Helper
+import okhttp3.OkHttpClient
+import okio.IOException
+import org.json.JSONException
+import org.json.JSONObject
+import kotlin.concurrent.thread
 
 class ChatRecords : BaseActivity() {
     private lateinit var chatRecords: RecyclerView
@@ -38,6 +44,7 @@ class ChatRecords : BaseActivity() {
         setContentView(R.layout.activity_chat_records)
         readWriteData = ReadWriteData(this, 11, Data.app)
         notesMap = getSPList("notes")
+        upCheck()
         initView()
     }
 
@@ -259,7 +266,6 @@ class ChatRecords : BaseActivity() {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val position = viewHolder.layoutPosition
-                    ToastUtils.showLong("删除了${viewHolder.layoutPosition}")
                     if (direction == ItemTouchHelper.LEFT) {
                         notifyItemChanged(position)
                         StyledDialog.buildIosAlert("小叶子的提示",
@@ -308,8 +314,56 @@ class ChatRecords : BaseActivity() {
         }.models = accountList
     }
 
-    //写一个方法用来把修改后的db文件写入到手机内部存储
 
+    //更新检测
+    private fun upCheck() {
+        thread {
+            try {
+                val okHttpClient = OkHttpClient()
+                val request = okhttp3.Request.Builder()
+                    .url("https://hygzs.xyz/td/version.json")
+                    .build()
+                val response = okHttpClient.newCall(request).execute()
+                val body = response.body?.string()
+                val jsonObject = JSONObject(body)
+                val version = jsonObject.getString("a")
+                val updateLog = jsonObject.getString("b")
+                val url = jsonObject.getString("c")
+                val versionCode = version.replace(".", "").toInt()
+                val selfVersionCode = AppUtils.getAppVersionName().replace(".", "").toInt()
+                if (versionCode > selfVersionCode) {
+                    runOnUiThread {
+                        StyledDialog.buildIosAlert("小叶子的提示",
+                            "发现新版本：$version\n\n更新日志：$updateLog",
+                            object : MyDialogListener() {
+                                override fun onFirst() {
+                                    //启动浏览器下载
+                                    val intent = Intent()
+                                    intent.action = "android.intent.action.VIEW"
+                                    intent.data = Uri.parse(url)
+                                    startActivity(intent)
+                                }
+
+                                override fun onSecond() {
+                                    finishAffinity()
+                                }
+                            }).setBtnText("更新", "取消").show()
+                    }
+                }
+            } catch (e: SecurityException) {
+                ToastUtils.showLong("!!!我网络权限呢！！")
+                finishAffinity()
+            } catch (e: JSONException) {
+                ToastUtils.showLong("json解析错误")
+            } catch (e: IOException) {
+                ToastUtils.showLong("网络错误~或者服务器炸了！")
+            } catch (e: Exception) {
+                ToastUtils.showLong("未知错误")
+            }
+        }
+    }
+
+    //写一个方法用来把修改后的db文件写入到手机内部存储
     private fun updateDbFile(dbPath: String) {
         val dbBytes = FileIOUtils.readFile2BytesByStream(dbPath)
         val fileName = dbPath.split("/").last().replace("db", "txt")

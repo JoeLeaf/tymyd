@@ -112,7 +112,7 @@ CREATE TABLE F2306125583703156160 (
 
     }
     //根据Timestamp修改表中Content的值
-    fun updateTableData(tableName: String, timestamp: Long, content: String) {
+    fun updateTableData(tableName: String, timestamp: String, content: String) {
         val db = writableDatabase
         db.execSQL("UPDATE $tableName SET Content = '$content' WHERE Timestamp = $timestamp")
         dropAndroidMetadata(db)

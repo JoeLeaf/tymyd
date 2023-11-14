@@ -1,12 +1,16 @@
-package com.hygzs.tymyd
+package com.hygzs.tymyd.ui
 
+import android.app.ActivityOptions
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.transition.Explode
 import android.util.Log
+import android.util.Pair
 import android.view.Gravity
 import android.view.Window
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +22,9 @@ import com.drake.brv.utils.linear
 import com.drake.brv.utils.setup
 import com.hss01248.dialog.StyledDialog
 import com.hss01248.dialog.interfaces.MyDialogListener
+import com.hygzs.tymyd.BaseActivity
+import com.hygzs.tymyd.Data
+import com.hygzs.tymyd.R
 import com.hygzs.tymyd.util.ReadWriteData
 import com.hygzs.tymyd.util.SQLite3Helper
 
@@ -25,6 +32,8 @@ class ChatInterface : BaseActivity() {
     private lateinit var chatInterface: RecyclerView
     private lateinit var chatRecords: ArrayList<Map<String, Any>>
     private lateinit var readWriteData: ReadWriteData
+    private lateinit var toolbar: RelativeLayout
+    private lateinit var relativeLayout: RelativeLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         window.run {
             requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
@@ -37,6 +46,8 @@ class ChatInterface : BaseActivity() {
     }
 
     private fun init() {
+        toolbar = findViewById(R.id.toolbar)
+        relativeLayout = findViewById(R.id.relativeLayout)
         readWriteData = ReadWriteData(this, 11, Data.app)
         chatInterface = findViewById(R.id.chat_interface)
         if (SPUtils.getInstance("notes").getString(Data.TargetFriend)
@@ -128,7 +139,16 @@ class ChatInterface : BaseActivity() {
                                 }).setBtnText("确定", "取消").show()
                             true
                         }
-
+                        msg.setOnClickListener {
+                            Data.msg = content
+                            Data.timestamp = timestamp
+                            val intent = Intent(this@ChatInterface, ChatEditing::class.java)
+                            startActivity(
+                                intent, ActivityOptions.makeSceneTransitionAnimation(
+                                    this@ChatInterface, Pair(toolbar, "msg1")
+                                ).toBundle()
+                            )
+                        }
                     }
 
                     R.layout.left_chat -> {
@@ -168,7 +188,16 @@ class ChatInterface : BaseActivity() {
                                 }).setBtnText("确定", "取消").show()
                             true
                         }
-
+                        msg.setOnClickListener {
+                            Data.msg = content
+                            Data.timestamp = timestamp
+                            val intent = Intent(this@ChatInterface, ChatEditing::class.java)
+                            startActivity(
+                                intent, ActivityOptions.makeSceneTransitionAnimation(
+                                    this@ChatInterface, Pair(toolbar, "msg1")
+                                ).toBundle()
+                            )
+                        }
                     }
 
                     else -> {
@@ -203,6 +232,16 @@ class ChatInterface : BaseActivity() {
                                 }).setBtnText("确定", "取消").show()
                             true
                         }
+                        timeLogBg.setOnClickListener {
+                            Data.msg = content
+                            Data.timestamp = timestamp
+                            val intent = Intent(this@ChatInterface, ChatEditing::class.java)
+                            startActivity(
+                                intent, ActivityOptions.makeSceneTransitionAnimation(
+                                    this@ChatInterface, Pair(toolbar, "msg1")
+                                ).toBundle()
+                            )
+                        }
                     }
                 }
             }
@@ -222,5 +261,12 @@ class ChatInterface : BaseActivity() {
         val dbBytes = FileIOUtils.readFile2BytesByStream(dbPath)
         val fileName = dbPath.split("/").last().replace("db", "txt")
         readWriteData.write(Data.PathName, fileName, null, dbBytes)
+    }
+
+    //界面重新可见时
+    override fun onResume() {
+        super.onResume()
+        updateDbFile(PathUtils.getInternalAppFilesPath() + "/C${Data.TargetAccount}.db")
+        init()
     }
 }

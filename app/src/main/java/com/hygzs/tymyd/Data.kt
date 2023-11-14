@@ -11,4 +11,6 @@ object Data {
     var PathName = "com.tencent.tmgp.wuxia/files"
     var TargetAccount = ""
     var TargetFriend = ""
+    var msg=""
+    var timestamp=""
 }
