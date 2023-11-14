@@ -39,5 +39,5 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:textColor="@color/white"
-        android:text="向右滑动修改备注，向左滑动删除，长按复制或者其他功能" />
+        android:text="@string/notes_tip" />
 </RelativeLayout>

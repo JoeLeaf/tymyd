@@ -1,13 +1,12 @@
 package com.hygzs.tymyd.ui
 
 
+import android.app.ActivityOptions
 import android.app.AlertDialog
-import android.os.Build
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -17,22 +16,17 @@ import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.PathUtils
 import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.ToastUtils
-import com.drake.brv.BindingAdapter
 import com.drake.brv.annotaion.AnimationType
-import com.drake.brv.annotaion.ItemOrientation
-import com.drake.brv.item.ItemSwipe
-import com.drake.brv.listener.DefaultItemTouchCallback
 import com.drake.brv.utils.linear
 import com.drake.brv.utils.setup
 import com.hss01248.dialog.StyledDialog
-import com.hss01248.dialog.adapter.SuperLvHolder
 import com.hss01248.dialog.interfaces.MyDialogListener
 import com.hygzs.tymyd.BaseActivity
+import com.hygzs.tymyd.ChatInterface
 import com.hygzs.tymyd.Data
 import com.hygzs.tymyd.R
 import com.hygzs.tymyd.util.ReadWriteData
 import com.hygzs.tymyd.util.SQLite3Helper
-import kotlin.math.log
 
 class ChatRecords : BaseActivity() {
     private lateinit var chatRecords: RecyclerView
@@ -88,7 +82,7 @@ class ChatRecords : BaseActivity() {
                 ) {
                     notes.text = notesMap["${models?.get(modelPosition)}"].toString()
                 } else {
-                    notes.text = "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
+                    notes.text = getString(R.string.notes_tip)
                 }
                 when (cronyId.text.substring(0, 1)) {
                     "F" -> {
@@ -110,7 +104,13 @@ class ChatRecords : BaseActivity() {
             }
             //点击打开界面
             R.id.crony_list_item.onClick {
-                ToastUtils.showLong("点击了${models?.get(modelPosition)}")
+                val targetFriend = "${models?.get(modelPosition)}"
+                Data.TargetFriend = targetFriend
+                val i = Intent(this@ChatRecords, ChatInterface::class.java)
+                startActivity(
+                    i,
+                    ActivityOptions.makeSceneTransitionAnimation(this@ChatRecords).toBundle()
+                )
             }
             //长按复制
             R.id.crony_list_item.onLongClick {
@@ -156,7 +156,7 @@ class ChatRecords : BaseActivity() {
                                 }
 
                                 override fun onSecond() {
-                                    notifyItemChanged(position)
+//                                    notifyItemChanged(position)
                                 }
                             }).setBtnText("确定", "取消").show()
                     } else if (direction == ItemTouchHelper.RIGHT) {
@@ -175,7 +175,7 @@ class ChatRecords : BaseActivity() {
                                 } else {
                                     SPUtils.getInstance("notes").put(
                                         "${models?.get(position)}",
-                                        "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
+                                        getString(R.string.notes_tip)
                                     )
                                     notesMap = getSPList("notes")
                                     //刷新界面
@@ -222,12 +222,15 @@ class ChatRecords : BaseActivity() {
                     notes.text =
                         notesMap["${models?.get(modelPosition)}"].toString()
                 } else {
-                    notes.text = "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
+                    notes.text = getString(R.string.notes_tip)
                 }
             }
             //点击进入聊天记录
             R.id.role_list_item.onClick {
-                getFriends("C${models?.get(modelPosition)}.txt")
+                val targetAccount = "${models?.get(modelPosition)}"
+                Log.e("小叶子 : ", targetAccount)
+                Data.TargetAccount = targetAccount
+                getFriends("C$targetAccount.txt")
             }
             //长按复制
             R.id.role_list_item.onLongClick {
@@ -276,7 +279,6 @@ class ChatRecords : BaseActivity() {
                             }).setBtnText("确定", "取消").show()
                     } else if (direction == ItemTouchHelper.RIGHT) {
                         notifyItemChanged(position)
-                        //不引用layout文件，直接在代码中写
                         val editText = EditText(this@ChatRecords)
                         AlertDialog.Builder(this@ChatRecords).setTitle("给爷输入备注")
                             .setView(editText).setPositiveButton("确定") { _, _ ->
@@ -290,7 +292,7 @@ class ChatRecords : BaseActivity() {
                                 } else {
                                     SPUtils.getInstance("notes").put(
                                         "${models?.get(position)}",
-                                        "向右滑动修改备注，向左滑动删除，长按复制或者其他功能"
+                                        getString(R.string.notes_tip)
                                     )
                                     notesMap = getSPList("notes")
                                     //刷新界面
@@ -312,7 +314,6 @@ class ChatRecords : BaseActivity() {
         val dbBytes = FileIOUtils.readFile2BytesByStream(dbPath)
         val fileName = dbPath.split("/").last().replace("db", "txt")
         readWriteData.write(Data.PathName, fileName, null, dbBytes)
-
     }
 
     private fun getSPList(string: String): Map<String, *> {

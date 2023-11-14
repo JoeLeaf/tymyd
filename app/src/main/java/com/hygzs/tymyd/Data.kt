@@ -9,4 +9,6 @@ package com.hygzs.tymyd
 object Data {
     var app = "com.tencent.tmgp.wuxia"
     var PathName = "com.tencent.tmgp.wuxia/files"
+    var TargetAccount = ""
+    var TargetFriend = ""
 }
