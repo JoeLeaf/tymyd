@@ -58,7 +58,16 @@
         android:inputType="textMultiLine"
         android:gravity="start"
         android:hint="阿巴阿巴！你删完了是要干啥？快点输入内容！"
-
         android:text="" />
+
+    <ImageView
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="30dp"
+        android:id="@+id/imageView4"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/meihua" />
+
 
 </RelativeLayout>

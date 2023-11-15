@@ -12,7 +12,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,6 +40,8 @@ dependencies {
     //RecyclerView框架 https://github.com/liangjingkanji/BRV
     implementation "com.squareup.okhttp3:okhttp:4.11.0"
     //okhttp3   https://github.com/square/okhttp
+    implementation 'com.jaredrummler:colorpicker:1.1.0'
+    //颜色选择器 https://github.com/jaredrummler/ColorPicker
 
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
