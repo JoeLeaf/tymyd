@@ -69,14 +69,12 @@ class ChatInterface : BaseActivity() {
                 .setGravity(Gravity.CENTER, 0, 0).setTextSize(18)
                 .show("这朵发发一定是有用的！但是现在没有！")
         }
-
         chatRecords = SQLite3Helper(
             this, PathUtils.getInternalAppFilesPath() + "/C${Data.TargetAccount}.db"
         ).getTableData(Data.TargetFriend)
         Log.e("小叶子 : ", chatRecords.toString())
         //addtype不能直接传入chatRecords，因为chatRecords是List<Map<String, Any>>类型，而addType需要的是List<Any>类型
         //所以需要转换一下
-
 
         //[{SrcId=2328362106862204481, DstId=2306125583702177064, SrcName=, DstChatGroupId=0, Content=好友“此别即是永别了”已更名为<color=#6da9e0>初丶秋</color>，快来找我玩吧！, Timestamp=1692543306, Channel=10, Addition=, MsgRid=7269418146342699010, Client_Tag=0}, {SrcId=2306125583702177064, DstId=0, SrcName=, DstChatGroupId=2306125583702177064, Content=2023-09-10 15:11, Timestamp=1694329901, Channel=10, Addition=, MsgRid=0, Client_Tag=0}, {SrcId=2328362106862204481, DstId=2306125583702177064, SrcName=, DstChatGroupId=0, Content=好友“初丶秋”已更名为<color=#6da9e0>手揣兜藏奶糖</color>，快来找我玩吧！, Timestamp=1694329902, Channel=10, Addition=, MsgRid=7277091517733863426, Client_Tag=0}, {SrcId=2328362106862204481, DstId=2306125583702177064, SrcName=, DstChatGroupId=0, Content=好友“手揣兜藏奶糖”已更名为<color=#6da9e0>秋风起满目朱红</color>，快来找我玩吧！, Timestamp=1695491337, Channel=10, Addition=, MsgRid=7282079843075227650, Client_Tag=0}, {SrcId=2328362106862204481, DstId=2306125583702177064, SrcName=, DstChatGroupId=0, Content=好友“秋风起满目朱红”已更名为<color=#6da9e0>久居故梦未曾出</color>，快来找我玩吧！, Timestamp=1697291013, Channel=10, Addition=, MsgRid=7289809392638623746, Client_Tag=0}]
         //如果SrcId和TargetAccount相同就是自己发的消息，否则就是对方发的消息，如果MsgRid为0就是系统消息，否则就是聊天消息

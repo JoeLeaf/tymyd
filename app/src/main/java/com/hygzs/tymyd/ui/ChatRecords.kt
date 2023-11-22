@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.Pair
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -62,10 +63,26 @@ class ChatRecords : BaseActivity() {
     }
 
     private fun initView() {
-        chatRecords = findViewById(R.id.chat_records)
-        findViewById<TextView>(R.id.textView5).setOnClickListener {
-            ToastUtils.showLong("你点啥！有这个打算！但是还没写！")
+        val textView5 = findViewById<TextView>(R.id.textView5)
+        textView5.setOnClickListener {
+            if (Data.TargetAccount == "") {
+                ToastUtils.showLong("只给你搜好友，账号才几个？不给搜！")
+                return@setOnClickListener
+            }
+            val intent = Intent(this@ChatRecords, SearchAccount::class.java)
+            startActivity(
+                intent, ActivityOptions.makeSceneTransitionAnimation(
+                    this@ChatRecords, Pair(textView5, "search")
+                ).toBundle()
+            )
         }
+
+
+
+        chatRecords = findViewById(R.id.chat_records)
+//        findViewById<TextView>(R.id.textView5).setOnClickListener {
+//            ToastUtils.showLong("你点啥！有这个打算！但是还没写！")
+//        }
         getAccountList()
     }
 
@@ -83,7 +100,7 @@ class ChatRecords : BaseActivity() {
             friendsList.toString(),
             List::class.java
         ) as MutableList<String>
-
+        Data.friendsList = friendsList
         //清理chatRecords数据和事件
         itemTouchHelper1?.attachToRecyclerView(null)
 
@@ -214,6 +231,7 @@ class ChatRecords : BaseActivity() {
     }
 
     private fun getAccountList() {
+        Data.TargetAccount = ""
         val fileList = readWriteData.getList(Data.PathName)
         val accountList = mutableListOf<String>()
         itemTouchHelper1?.attachToRecyclerView(null)
@@ -372,6 +390,83 @@ class ChatRecords : BaseActivity() {
                 ToastUtils.showLong("网络错误~或者服务器炸了！")
             } catch (e: Exception) {
                 ToastUtils.showLong("未知错误")
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Data.clickFriend == "") {
+            return
+        } else {
+            thread {
+                val position = Data.friendsList.indexOf(Data.clickFriend)
+                Thread.sleep(0)
+                runOnUiThread {
+                    //滑动到指定位置
+                    chatRecords.scrollToPosition(position)
+                    //做个缩放动画
+                    Data.clickFriend = ""
+                }
+                Thread.sleep(500)
+                runOnUiThread {
+                    //让他产生左右滑动的动画提示用户
+                    chatRecords.layoutManager?.findViewByPosition(position)?.apply {
+                        scaleX = 0.5f
+                        scaleY = 0.5f
+                        animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                    }
+                }
+                Thread.sleep(100)
+                runOnUiThread {
+                    //让他产生左右滑动的动画提示用户
+                    chatRecords.layoutManager?.findViewByPosition(position)?.apply {
+                        scaleX = 0.5f
+                        scaleY = 0.5f
+                        animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                    }
+                }
+                Thread.sleep(100)
+                runOnUiThread {
+                    //让他产生左右滑动的动画提示用户
+                    chatRecords.layoutManager?.findViewByPosition(position)?.apply {
+                        scaleX = 0.5f
+                        scaleY = 0.5f
+                        animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                    }
+                }
+                Thread.sleep(100)
+                runOnUiThread {
+                    //让他产生左右滑动的动画提示用户
+                    chatRecords.layoutManager?.findViewByPosition(position)?.apply {
+                        scaleX = 0.5f
+                        scaleY = 0.5f
+                        animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                    }
+                }
+                Thread.sleep(100)
+                //跳转到聊天界面
+                runOnUiThread {
+                    val i = Intent(this@ChatRecords, ChatInterface::class.java)
+                    startActivity(
+                        i,
+                        ActivityOptions.makeSceneTransitionAnimation(this@ChatRecords).toBundle()
+                    )
+                    var searchRecordsText = SPUtils.getInstance("config").getString("searchRecords")
+                    Log.e("小叶子 : ", searchRecordsText)
+                    if (searchRecordsText == "") {
+                        SPUtils.getInstance("config").put("searchRecords", Data.TargetFriend)
+                    } else {
+                        //判断是不是包含
+                        if (searchRecordsText.contains(Data.TargetFriend)) {
+                            //包含就不添加
+                        } else {
+                            //不包含就添加
+                            searchRecordsText = "$searchRecordsText,${Data.TargetFriend}"
+                            SPUtils.getInstance("config").put("searchRecords", searchRecordsText)
+                        }
+                    }
+                }
             }
         }
     }
