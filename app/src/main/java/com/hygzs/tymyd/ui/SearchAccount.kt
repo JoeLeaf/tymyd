@@ -115,7 +115,7 @@ class SearchAccount : BaseActivity() {
                 ) {
                     notes.text = notesMap["${models?.get(modelPosition)}"].toString()
                 } else {
-                    notes.text = getString(R.string.notes_tip)
+                    notes.text = "你搜过我！！"
                 }
                 when (cronyId.text.substring(0, 1)) {
                     "F" -> {

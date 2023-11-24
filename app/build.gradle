@@ -6,7 +6,6 @@ plugins {
 android {
     namespace 'com.hygzs.tymyd'
     compileSdk 33
-
     defaultConfig {
         applicationId "com.hygzs.tymyd"
         minSdk 24

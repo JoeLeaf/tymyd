@@ -50,6 +50,13 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
             imageView4.startAnimation(shake)
         }
 
+
+        //imageView4 不影响点击实现随手指拖动
+        imageView4.setOnTouchListener { v, event ->
+            v.x = event.rawX - v.width / 2
+            v.y = event.rawY - v.height / 2
+            false
+        }
         imageView4.setOnClickListener {
             StyledDialog.buildBottomSheetLv("这都被你发现了！", listOf(
                 BottomSheetBean(R.mipmap.duilian, "颜色工具"),
@@ -67,7 +74,11 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
                         }
 
                         1 -> {
-                            ToastUtils.showShort("暂时不给看！")
+                            StyledDialog.buildBottomItemDialog(listOf("111","22"),"sss",object :MyItemDialogListener(){
+                                override fun onItemClick(text: CharSequence?, position: Int) {
+                                    ToastUtils.showShort(text)
+                                }
+                            }).show()
                         }
 
                         2 -> {
@@ -81,13 +92,6 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
                 }
             }).show()
         }
-
-
-
-
-
-
-
 
 
         findViewById<ImageView>(R.id.imageView2).setOnClickListener {
@@ -114,6 +118,7 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
                 Data.TargetFriend, Data.timestamp, msg
             )
             finishAfterTransition()
+            ToastUtils.showShort("修改成功！如果想加载最新聊天数据，请返回到账号列表再进入聊天界面！")
         }
     }
 
