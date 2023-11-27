@@ -20,6 +20,7 @@ import com.drake.brv.utils.setup
 import com.hygzs.tymyd.BaseActivity
 import com.hygzs.tymyd.Data
 import com.hygzs.tymyd.R
+import com.hygzs.tymyd.util.Xyz.isShouldHideKeyboard
 import kotlin.concurrent.thread
 
 class SearchAccount : BaseActivity() {
@@ -149,5 +150,15 @@ class SearchAccount : BaseActivity() {
 
     private fun getSPList(string: String): Map<String, *> {
         return SPUtils.getInstance(string).all
+    }
+    //实现点击键盘外隐藏键盘
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent?): Boolean {
+        if (ev?.action == android.view.MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (isShouldHideKeyboard(v, ev)) {
+                KeyboardUtils.hideSoftInput(this)
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }

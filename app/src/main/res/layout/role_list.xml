@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_marginBottom="20dp"
-    android:background="@drawable/linearlayout_solid"
+    android:background="@mipmap/list_bg"
     android:id="@+id/role_list_item"
     android:layout_height="100dp">
     <TextView

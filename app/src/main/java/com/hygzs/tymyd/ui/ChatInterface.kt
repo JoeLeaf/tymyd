@@ -21,12 +21,16 @@ import com.blankj.utilcode.util.ToastUtils
 import com.drake.brv.utils.linear
 import com.drake.brv.utils.setup
 import com.hss01248.dialog.StyledDialog
+import com.hss01248.dialog.bottomsheet.BottomSheetBean
 import com.hss01248.dialog.interfaces.MyDialogListener
+import com.hss01248.dialog.interfaces.MyItemDialogListener
 import com.hygzs.tymyd.BaseActivity
 import com.hygzs.tymyd.Data
 import com.hygzs.tymyd.R
 import com.hygzs.tymyd.util.ReadWriteData
 import com.hygzs.tymyd.util.SQLite3Helper
+import com.jaredrummler.android.colorpicker.ColorPickerDialog
+import java.text.SimpleDateFormat
 
 class ChatInterface : BaseActivity() {
     private lateinit var chatInterface: RecyclerView
@@ -65,9 +69,37 @@ class ChatInterface : BaseActivity() {
             finishAfterTransition()
         }
         findViewById<ImageView>(R.id.imageView).setOnClickListener {
-            ToastUtils.make().setTextColor(Color.WHITE).setBgColor(Color.parseColor("#fd79a8"))
-                .setGravity(Gravity.CENTER, 0, 0).setTextSize(18)
-                .show("这朵发发一定是有用的！但是现在没有！")
+//            ToastUtils.make().setTextColor(Color.WHITE).setBgColor(Color.parseColor("#fd79a8"))
+//                .setGravity(Gravity.CENTER, 0, 0).setTextSize(18)
+//                .show("这朵发发一定是有用的！但是现在没有！")
+            StyledDialog.buildBottomSheetLv("这都被你发现了！", listOf(
+                BottomSheetBean(R.mipmap.duilian, "颜色工具"),
+                BottomSheetBean(R.mipmap.duilian, "数据加解密")
+            ), "艹！走！忽略ጿ ኈ ቼ ዽ ጿ", object : MyItemDialogListener() {
+                override fun onItemClick(text: CharSequence?, position: Int) {
+                    when (position) {
+                        0 -> {
+                            ColorPickerDialog.newBuilder()
+                                .setDialogType(ColorPickerDialog.TYPE_PRESETS)
+                                .setAllowPresets(false)
+                                .setDialogId(0).setShowAlphaSlider(false).show(this@ChatInterface)
+                        }
+
+                        1 -> {
+                            val i = Intent(this@ChatInterface, Crypto::class.java)
+                            startActivity(
+                                i,
+                                ActivityOptions.makeSceneTransitionAnimation(this@ChatInterface)
+                                    .toBundle()
+                            )
+                        }
+
+                        2 -> {
+                            ToastUtils.showShort("暂无此功能！")
+                        }
+                    }
+                }
+            }).show()
         }
         chatRecords = SQLite3Helper(
             this, PathUtils.getInternalAppFilesPath() + "/C${Data.TargetAccount}.db"
@@ -80,7 +112,7 @@ class ChatInterface : BaseActivity() {
         //如果SrcId和TargetAccount相同就是自己发的消息，否则就是对方发的消息，如果MsgRid为0就是系统消息，否则就是聊天消息
         chatInterface.linear().setup {
             addType<Map<String, Any>> {
-                val map = models?.get(it) as Map<String, Any>
+                val map = models?.get(it) as Map<*, *>
                 if (map["SrcId"] == Data.TargetAccount && map["MsgRid"].toString() != "0" && !map["Content"].toString()
                         .contains("已更名为<color=#6da9e0>")
                 ) {
@@ -98,7 +130,7 @@ class ChatInterface : BaseActivity() {
             }
 
             onBind {
-                val map = models?.get(modelPosition) as Map<String, Any>
+                val map = models?.get(modelPosition) as Map<*, *>
                 when (itemViewType) {
                     R.layout.right_chat -> {
                         //自己发的消息
@@ -251,7 +283,7 @@ class ChatInterface : BaseActivity() {
     private fun timestampToTime(timestamp: String): String {
         val time = timestamp.toLong()
         val date = java.util.Date(time * 1000)
-        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm")
         return sdf.format(date)
     }
 

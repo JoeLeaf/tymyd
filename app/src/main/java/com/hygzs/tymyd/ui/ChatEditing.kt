@@ -1,14 +1,18 @@
 package com.hygzs.tymyd.ui
 
+import android.annotation.SuppressLint
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.CycleInterpolator
 import android.view.animation.TranslateAnimation
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
@@ -21,10 +25,11 @@ import com.hygzs.tymyd.BaseActivity
 import com.hygzs.tymyd.Data
 import com.hygzs.tymyd.R
 import com.hygzs.tymyd.util.SQLite3Helper
+import com.hygzs.tymyd.util.Xyz
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlin.concurrent.thread
-import kotlin.math.log
+import kotlin.math.abs
 
 
 class ChatEditing : BaseActivity(), ColorPickerDialogListener {
@@ -37,6 +42,7 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
         init()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun init() {
         imageView4 = findViewById(R.id.imageView4)
         editTextText = findViewById(R.id.editTextText)
@@ -51,48 +57,67 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
         }
 
 
-        //imageView4 不影响点击实现随手指拖动
-        imageView4.setOnTouchListener { v, event ->
-            v.x = event.rawX - v.width / 2
-            v.y = event.rawY - v.height / 2
-            false
-        }
-        imageView4.setOnClickListener {
-            StyledDialog.buildBottomSheetLv("这都被你发现了！", listOf(
-                BottomSheetBean(R.mipmap.duilian, "颜色工具"),
-                BottomSheetBean(R.mipmap.duilian, "查看初丶秋库存"),
-//                BottomSheetBean(R.mipmap.duilian, "嘿！"),
-//                BottomSheetBean(R.mipmap.duilian, "哈！")
-            ), "艹！走！忽略ጿ ኈ ቼ ዽ ጿ", object : MyItemDialogListener() {
-                override fun onItemClick(text: CharSequence?, position: Int) {
-                    when (position) {
-                        0 -> {
-                            ColorPickerDialog.newBuilder()
-                                .setDialogType(ColorPickerDialog.TYPE_PRESETS)
-                                .setAllowPresets(false)
-                                .setDialogId(0).setShowAlphaSlider(false).show(this@ChatEditing)
-                        }
+        imageView4.setOnTouchListener(object : View.OnTouchListener {
+            private var lastX = 0f
+            private var lastY = 0f
+            private var isClick = true
 
-                        1 -> {
-                            StyledDialog.buildBottomItemDialog(listOf("111","22"),"sss",object :MyItemDialogListener(){
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                when (p1?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        lastX = p1.rawX
+                        lastY = p1.rawY
+                        isClick = true
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        p0?.x = p1.rawX - p0?.width!! / 2
+                        p0.y = p1.rawY - p0.height / 2
+                        if (abs(p1.rawX - lastX) > 10 || abs(p1.rawY - lastY) > 10) {
+                            isClick = false
+                        }
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        if (abs(p1.rawX - lastX) < 10 && abs(p1.rawY - lastY) < 10) {
+                            isClick = false
+                            StyledDialog.buildBottomSheetLv("这都被你发现了！", listOf(
+                                BottomSheetBean(R.mipmap.duilian, "颜色工具"),
+                                BottomSheetBean(R.mipmap.duilian, "数据加解密")
+                            ), "艹！走！忽略ጿ ኈ ቼ ዽ ጿ", object : MyItemDialogListener() {
                                 override fun onItemClick(text: CharSequence?, position: Int) {
-                                    ToastUtils.showShort(text)
+                                    when (position) {
+                                        0 -> {
+                                            ColorPickerDialog.newBuilder()
+                                                .setDialogType(ColorPickerDialog.TYPE_PRESETS)
+                                                .setAllowPresets(false)
+                                                .setDialogId(0).setShowAlphaSlider(false)
+                                                .show(this@ChatEditing)
+                                        }
+
+                                        1 -> {
+                                            val i = Intent(this@ChatEditing, Crypto::class.java)
+                                            startActivity(
+                                                i,
+                                                ActivityOptions.makeSceneTransitionAnimation(
+                                                    this@ChatEditing
+                                                )
+                                                    .toBundle()
+                                            )
+                                        }
+
+                                        2 -> {
+                                            ToastUtils.showShort("暂无此功能！")
+                                        }
+                                    }
                                 }
                             }).show()
                         }
-
-                        2 -> {
-                            ToastUtils.showShort("嘿！")
-                        }
-
-                        3 -> {
-                            ToastUtils.showShort("哈！")
-                        }
                     }
-                }
-            }).show()
-        }
 
+                }
+                return true
+            }
+        })
 
         findViewById<ImageView>(R.id.imageView2).setOnClickListener {
             if (KeyboardUtils.isSoftInputVisible(this)) {
@@ -130,6 +155,16 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
         ToastUtils.showShort("已复制颜色值：#$colorText")
     }
 
+    //实现点击键盘外隐藏键盘
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (Xyz.isShouldHideKeyboard(v, ev)) {
+                KeyboardUtils.hideSoftInput(this)
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
     override fun onDialogDismissed(dialogId: Int) {
         Log.e("ColorPicker", "onDialogDismissed: $dialogId")
     }

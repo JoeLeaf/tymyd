@@ -4,6 +4,7 @@ package com.hygzs.tymyd;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.blankj.utilcode.util.SPUtils;
 import com.hygzs.tymyd.customView.PathAnimTextView;
@@ -11,7 +12,6 @@ import com.hygzs.tymyd.ui.Agreement;
 import com.hygzs.tymyd.ui.ChatRecords;
 
 public class MainActivity extends BaseActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 //        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".crypto.CryptoLingShiFragment">
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_margin="10dp"
+        android:id="@+id/encryptionInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="密文">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_margin="10dp"
+        android:layout_below="@+id/encryptionInputLayout"
+        android:id="@+id/decryptionInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="明文">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+</RelativeLayout>
