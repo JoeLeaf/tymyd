@@ -6,13 +6,15 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
+import com.blankj.utilcode.util.ToastUtils
 import com.google.android.material.textfield.TextInputLayout
 import com.hygzs.tymyd.R
 
-// TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -23,7 +25,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class CryptoLingShiFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var encryptionInputLayout: TextInputLayout
@@ -75,9 +76,15 @@ class CryptoLingShiFragment : Fragment() {
                         .replace("Y", "[")
                         .replace("i", "词条")
                         .replace("o", "左")
-                        .replace("n", "右");
+                        .replace("n", "右")
+                        .replace("_", "种类")
+                        .replace("`", "品质")
                     decryptionInputLayout.editText?.setText("<a href=LING_YU_SHARE:$test$test2")
                 } catch (e: Exception) {
+                    if (str.isNotEmpty()) {
+                        ToastUtils.showShort("输入内容错误哦~")
+                        decryptionInputLayout.editText?.setText("")
+                    }
                 }
             }
         }
@@ -110,11 +117,26 @@ class CryptoLingShiFragment : Fragment() {
                         .replace("]", "[")
                         .replace("词条", "i")
                         .replace("左", "o")
-                        .replace("右", "n");
+                        .replace("右", "n")
+                        .replace("种类", "_")
+                        .replace("品质", "`")
                     encryptionInputLayout.editText?.setText("<a href=LING_YU_SHARE:$test$test2")
                 } catch (e: Exception) {
+                    if (str.isNotEmpty()) {
+                        ToastUtils.showShort("输入内容错误哦~")
+                        encryptionInputLayout.editText?.setText("")
+                    }
                 }
             }
+        }
+
+        view.findViewById<TextView>(R.id.copyEncryption).setOnClickListener {
+            ClipboardUtils.copyText(encryptionInputLayout.editText?.text.toString())
+            ToastUtils.showShort("已复制到剪贴板！")
+        }
+        view.findViewById<TextView>(R.id.copyDecryption).setOnClickListener {
+            ClipboardUtils.copyText(decryptionInputLayout.editText?.text.toString())
+            ToastUtils.showShort("已复制到剪贴板！")
         }
 
         //实现点击键盘外隐藏键盘
@@ -136,7 +158,6 @@ class CryptoLingShiFragment : Fragment() {
          * @param param2 Parameter 2.
          * @return A new instance of fragment CryptoLingShiFragment.
          */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             CryptoLingShiFragment().apply {

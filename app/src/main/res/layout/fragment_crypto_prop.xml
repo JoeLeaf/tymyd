@@ -4,10 +4,59 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".crypto.CryptoPropFragment">
-    <TextView
-        android:textColor="@color/white"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_margin="10dp"
+        android:id="@+id/encryptionInputLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="咕咕咕~\n\n哪里来的鸽子！" />
+        android:hint="密文">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_gravity="end"
+            android:id="@+id/copyEncryption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="复制" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_margin="10dp"
+        android:layout_below="@+id/encryptionInputLayout"
+        android:id="@+id/decryptionInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="明文">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:textSize="14sp" />
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_gravity="end"
+            android:id="@+id/copyDecryption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="复制" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:layout_margin="10dp"
+        android:layout_below="@+id/decryptionInputLayout"
+        android:id="@+id/textView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="直接修改item=后面的数字就能看到这个物品ID对应的名字，解析修改是修改点开的内容" />
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
 </RelativeLayout>

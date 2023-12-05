@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小叶子</title>
+  </head>
+  <script src="./pb.js"></script>
+  <script src="./protobuf.min.js"></script>
+  <script src="./buffer@6.0.3.js"></script>
+  <body>
+  <h1>小叶子</h1>
+  </body>
+  <script>
+    //2023-12-04 17:41 重构支持 https://github.com/JoeLeaf/oicq-node/blob/main/decodePb.js
+    function pbtoJson(resultBuffer) {
+      let json = {};
+      let data;
+      async function decode(resultBuffer, json) {
+        for (let key in resultBuffer) {
+          if (key == "encoded") continue;
+          if (resultBuffer[key] instanceof Object) {
+            if (resultBuffer[key] instanceof Array) {
+              json[key] = [];
+              for (let i = 0; i < resultBuffer[key].length; i++) {
+                json[key].push({});
+                decode(resultBuffer[key][i], json[key][i]);
+              }
+            } else {
+              try {
+                if (pb.decode(resultBuffer[key].encoded) == null) {
+                  if (data.length > 3) {
+                    let Prefix = "";
+                    if (data[0] == 0x01 || data[0] == 0x00) {
+                      Prefix = data.toString("hex").slice(0, 2);
+                      data = data.slice(1);
+                    }
+                    let data_json = {};
+                    data_json.Prefix = Prefix;
+                    if (data[0] == 0x78 && data[1] == 0x9c) {
+                      data_json.txt = data;
+                      data_json.tip =
+                        "数据被加密过,使用时请把数据加密回去 deflateSync()";
+                      json[key] = data_json;
+                      decode(resultBuffer[key], json[key]);
+                      continue;
+                    } else {
+                      json[key] = resultBuffer[key].encoded.toString();
+                      decode(resultBuffer[key], json[key]);
+                      continue;
+                    }
+                  }
+                  json[key] = resultBuffer[key].encoded.toString();
+                  decode(resultBuffer[key], json[key]);
+                  continue;
+                }
+                json[key] = {};
+                decode(resultBuffer[key], json[key]);
+              } catch (e) {
+                let data = resultBuffer[key].encoded;
+                if (data.length > 3) {
+                  let Prefix = "";
+                  if (data[0] == 0x01 || data[0] == 0x00) {
+                    Prefix = data.toString("hex").slice(0, 2);
+                    data = data.slice(1);
+                  }
+                  let data_json = {};
+                  data_json.Prefix = Prefix;
+                  //0x78 0x9c是zlib压缩的标志
+                  if (data[0] == 0x78 && data[1] == 0x9c) {
+                    data_json.txt = data;
+                    data_json.tip =
+                      "数据被加密过,使用时请把数据加密回去 deflateSync()";
+                    json[key] = data_json;
+                    decode(resultBuffer[key], json[key]);
+                    continue;
+                  } else {
+                    json[key] = resultBuffer[key].encoded.toString();
+                    decode(resultBuffer[key], json[key]);
+                    continue;
+                  }
+                }
+                json[key] = resultBuffer[key].encoded.toString();
+                decode(resultBuffer[key], json[key]);
+                continue;
+              }
+            }
+          } else {
+            let value = resultBuffer[key];
+            if (typeof value == "bigint") {
+              value = value.toString();
+              value = Number(value);
+            }
+            json[key] = value;
+          }
+        }
+      }
+      decode(resultBuffer, json);
+      return json;
+    }
+    Buffer = buffer.Buffer;
+    function decodePb(base64Text) {
+      try {
+        const buffer = Buffer.from(base64Text, "base64");
+        resultBuffer = pb.decode(buffer);
+        return JSON.stringify(pbtoJson(resultBuffer));
+      } catch (error) {
+        return "数据不对哦~";
+      }
+    }
+    function encodePb(jsonText) {
+      try {
+        return Buffer.from(pb.encode(JSON.parse(`${jsonText}`))).toString(
+          "base64"
+        );
+      } catch (error) {
+        return "数据不对哦~";
+      }
+    }
+  </script>
+</html>
