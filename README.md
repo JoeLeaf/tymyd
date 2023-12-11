@@ -16,3 +16,5 @@
 - 5.即可查看聊天记录
 - 效果图如下
 - ![image](https://hygzs.xyz/td/1.png)
+- 使用教程图文地址 https://www.bilibili.com/read/cv24384787/
+- 
