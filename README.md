@@ -17,4 +17,5 @@
 - 效果图如下
 - ![image](https://hygzs.xyz/td/1.png)
 - 使用教程图文地址 https://www.bilibili.com/read/cv24384787/
-- 
+
+win版本增加中，可能顺手写个逆水寒的
