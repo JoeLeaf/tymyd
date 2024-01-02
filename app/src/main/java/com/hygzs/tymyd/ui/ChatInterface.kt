@@ -2,15 +2,12 @@ package com.hygzs.tymyd.ui
 
 import android.app.ActivityOptions
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.transition.Explode
 import android.util.Log
 import android.util.Pair
-import android.view.Gravity
 import android.view.Window
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -74,7 +71,8 @@ class ChatInterface : BaseActivity() {
 //                .show("这朵发发一定是有用的！但是现在没有！")
             StyledDialog.buildBottomSheetLv("这都被你发现了！", listOf(
                 BottomSheetBean(R.mipmap.duilian, "颜色工具"),
-                BottomSheetBean(R.mipmap.duilian, "数据加解密")
+                BottomSheetBean(R.mipmap.duilian, "数据加解密"),
+                if (SPUtils.getInstance("config").getString("channel") == "tf") {BottomSheetBean(R.mipmap.duilian, "切到国服")} else {BottomSheetBean(R.mipmap.duilian, "切到台服")}
             ), "艹！走！忽略ጿ ኈ ቼ ዽ ጿ", object : MyItemDialogListener() {
                 override fun onItemClick(text: CharSequence?, position: Int) {
                     when (position) {
@@ -95,7 +93,16 @@ class ChatInterface : BaseActivity() {
                         }
 
                         2 -> {
-                            ToastUtils.showShort("暂无此功能！")
+                            ToastUtils.showShort("重新打开软件即可！")
+                            if (SPUtils.getInstance("config").getString("channel") == "tf") {
+                                SPUtils.getInstance("config").remove("channel")
+                                SPUtils.getInstance("config").remove("isAgree")
+                                finishAffinity()
+                            } else {
+                                SPUtils.getInstance("config").remove("channel")
+                                SPUtils.getInstance("config").remove("isAgree")
+                                finishAffinity()
+                            }
                         }
                     }
                 }

@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.PathUtils
+import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.hss01248.dialog.StyledDialog
 import com.hss01248.dialog.bottomsheet.BottomSheetBean
@@ -82,7 +83,8 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
                             isClick = false
                             StyledDialog.buildBottomSheetLv("这都被你发现了！", listOf(
                                 BottomSheetBean(R.mipmap.duilian, "颜色工具"),
-                                BottomSheetBean(R.mipmap.duilian, "数据加解密")
+                                BottomSheetBean(R.mipmap.duilian, "数据加解密"),
+                                if (SPUtils.getInstance("config").getString("channel") == "tf") {BottomSheetBean(R.mipmap.duilian, "切到国服")} else {BottomSheetBean(R.mipmap.duilian, "切到台服")}
                             ), "艹！走！忽略ጿ ኈ ቼ ዽ ጿ", object : MyItemDialogListener() {
                                 override fun onItemClick(text: CharSequence?, position: Int) {
                                     when (position) {
@@ -106,7 +108,16 @@ class ChatEditing : BaseActivity(), ColorPickerDialogListener {
                                         }
 
                                         2 -> {
-                                            ToastUtils.showShort("暂无此功能！")
+                                            ToastUtils.showShort("重新打开软件即可！")
+                                            if (SPUtils.getInstance("config").getString("channel") == "tf") {
+                                                SPUtils.getInstance("config").remove("channel")
+                                                SPUtils.getInstance("config").remove("isAgree")
+                                                finishAffinity()
+                                            } else {
+                                                SPUtils.getInstance("config").remove("channel")
+                                                SPUtils.getInstance("config").remove("isAgree")
+                                                finishAffinity()
+                                            }
                                         }
                                     }
                                 }

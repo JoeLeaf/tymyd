@@ -51,7 +51,7 @@ class ChatRecords : BaseActivity() {
         if (SPUtils.getInstance("config").getBoolean("first", true)) {
             SPUtils.getInstance("config").put("first", false)
             StyledDialog.buildIosAlert("小叶子的提示",
-                "欢迎使用！我是初丶秋（小叶子）\n这是一个免费开源项目，你可以在github上找到它\nhttps://github.com/JoeLeaf/tymyd\n\n软件存在很多小细节和小技巧，可以访问https://hygzs.xyz/td/",
+                "欢迎使用！我是初丶秋（小叶子）\n这是一个免费开源项目，你可以在github上找到它\nhttps://github.com/JoeLeaf/tymyd\n\n软件存在很多小细节和小技巧，有一些巧思和用途，请自己发现！",
                 object : MyDialogListener() {
                     override fun onFirst() {
                     }
